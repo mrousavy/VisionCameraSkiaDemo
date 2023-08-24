@@ -12,31 +12,30 @@ function getArrayFromCache(size: number): Int8Array {
 
 /**
  * Resizes the given Frame to the given target width and height.
- * For 1920x1080 -> 192x192 Frames, this takes roughly 5ms on an iPhone 11 Pro.
+ * For 1920x1080 BGRA -> 192x192 RGB Frames, this takes roughly 5ms on an iPhone 11 Pro.
  */
 export function resize(frame: Frame, width: number, height: number): Int8Array {
   'worklet';
 
+  const bytesPerRow = frame.bytesPerRow;
   const inputWidth = frame.width;
   const inputHeight = frame.height;
   const targetWidth = width;
   const targetHeight = height;
 
+  const pixelSize = Math.floor(bytesPerRow / inputWidth); // 4 for BGRA
+
   const arrayData = frame.toArrayBuffer();
-
-  let yOffset = Math.max((inputHeight - inputWidth) / 2, 0);
-  let xOffset = Math.max((inputWidth - inputHeight) / 2, 0);
-
   const outputFrame = getArrayFromCache(targetWidth * targetHeight * 3);
 
   for (let y = 0; y < targetHeight; y++) {
     for (let x = 0; x < targetWidth; x++) {
       // Map destination pixel position to source pixel
-      const srcX = Math.floor((x / targetWidth) * (inputWidth + xOffset));
-      const srcY = Math.floor((y / targetHeight) * (inputHeight + yOffset));
+      const srcX = Math.floor((x / targetWidth) * inputWidth);
+      const srcY = Math.floor((y / targetHeight) * inputHeight);
 
       // Compute the source and destination index
-      const srcIndex = (srcY * (inputWidth + xOffset) + srcX) * 4; // 4 for BGRA
+      const srcIndex = (srcY * inputWidth + srcX) * pixelSize;
       const destIndex = (y * targetWidth + x) * 3; // 3 for RGB
 
       // Convert from BGRA to RGB
