@@ -1,16 +1,14 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {StatusBar, StyleSheet, Text, View} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
 import {
   Camera,
   useCameraDevices,
-  useFrameProcessor,
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
 import {resize} from './resizePlugin';
 import {getBestFormat} from './formatFilter';
-import {PaintStyle, Skia, useFont, useImage} from '@shopify/react-native-skia';
-import {useSharedValue} from 'react-native-worklets-core';
+import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -93,8 +91,11 @@ function App(): JSX.Element {
     6, 12,
   ];
 
-  const emojiFont = useFont(require('./assets/NotoEmoji-Medium.ttf'), 32, e =>
-    console.error(e),
+  const EMOJI_SIZE = 50;
+  const emojiFont = useFont(
+    require('./assets/NotoEmoji-Medium.ttf'),
+    EMOJI_SIZE,
+    e => console.error(e),
   );
 
   const fillColor = Skia.Color('black');
@@ -119,6 +120,12 @@ function App(): JSX.Element {
         for (let i = 0; i < lines.length; i += 2) {
           const from = lines[i];
           const to = lines[i + 1];
+
+          const confidence = output[from * 3 + 2];
+          if (confidence < 0.5) {
+            continue;
+          }
+
           frame.drawLine(
             output[from * 3 + 1] * frameWidth,
             output[from * 3] * frameHeight,
@@ -129,8 +136,8 @@ function App(): JSX.Element {
         }
 
         if (emojiFont != null) {
-          const noseY = output[0] * frame.height;
-          const noseX = output[1] * frame.width - 16;
+          const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
+          const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
           frame.drawText('😄', noseX, noseY, paint, emojiFont);
         }
       }
