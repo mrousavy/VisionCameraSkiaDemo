@@ -17,26 +17,30 @@ function getArrayFromCache(size: number): Int8Array {
 export function resize(frame: Frame, width: number, height: number): Int8Array {
   'worklet';
 
-  const bytesPerRow = frame.bytesPerRow;
+  const inputBytesPerRow = frame.bytesPerRow;
   const inputWidth = frame.width;
   const inputHeight = frame.height;
+  const inputPixelSize = Math.floor(inputBytesPerRow / inputWidth); // 4 for BGRA
+  const padding = inputBytesPerRow - inputWidth; // on some frames there's additional padding
+
   const targetWidth = width;
   const targetHeight = height;
-
-  const pixelSize = Math.floor(bytesPerRow / inputWidth); // 4 for BGRA
+  const targetPixelSize = 3; // 3 for RGB
 
   const arrayData = frame.toArrayBuffer();
-  const outputFrame = getArrayFromCache(targetWidth * targetHeight * 3);
+  const outputFrame = getArrayFromCache(
+    targetWidth * targetHeight * targetPixelSize,
+  );
 
   for (let y = 0; y < targetHeight; y++) {
     for (let x = 0; x < targetWidth; x++) {
       // Map destination pixel position to source pixel
-      const srcX = Math.floor((x / targetWidth) * inputWidth);
+      const srcX = Math.floor((x / targetWidth) * (inputWidth + padding));
       const srcY = Math.floor((y / targetHeight) * inputHeight);
 
       // Compute the source and destination index
-      const srcIndex = (srcY * inputWidth + srcX) * pixelSize;
-      const destIndex = (y * targetWidth + x) * 3; // 3 for RGB
+      const srcIndex = (srcY * (inputWidth + padding) + srcX) * inputPixelSize;
+      const destIndex = (y * targetWidth + x) * targetPixelSize; // 3 for RGB
 
       // Convert from BGRA to RGB
       outputFrame[destIndex] = arrayData[srcIndex + 2]; // R
