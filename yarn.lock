@@ -5691,10 +5691,15 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-vision-camera@^3.0.0-rc.6:
-  version "3.0.0-rc.6"
-  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-3.0.0-rc.6.tgz#7359bc9a8913dfb9e6e533eacd09d1e288098fb5"
-  integrity sha512-WqFTDU4MIz9MkXh4lVd9MHcL+TJ4eRjC/hkY1E7XX20BYHDgAhwm1BTv0ZutUBDuzLmgZGMtmU9wqPkGwJ+pew==
+react-native-fast-tflite@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-fast-tflite/-/react-native-fast-tflite-0.2.0.tgz#d86877478619f9542e655f629070ce6fec02a26a"
+  integrity sha512-xosr/2ILVg8KRtiENMOLSQALps/ApNh3w/oFi4HcRYwrvj15QLXNSLhpSr9gqhT+15oQ838RmRdWnI8zscDxHQ==
+
+react-native-vision-camera@^3.0.0-rc.7:
+  version "3.0.0-rc.7"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-3.0.0-rc.7.tgz#d7ccf77501acb12b8c0c3c87da6beec9e4f895ee"
+  integrity sha512-2e5oKrTOvA3dNrPW39WBWbdZIhvFZQyidDLTMKS/STBmosL3GOsSPnB6iiJoBiO2KlYNgpCXXcpsGTNoJ4+urw==
   dependencies:
     string-hash-64 "^1.0.3"
 

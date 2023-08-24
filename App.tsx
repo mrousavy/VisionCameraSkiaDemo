@@ -1,12 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Camera, useCameraDevices} from 'react-native-vision-camera';
+import {useTensorflowModel} from 'react-native-fast-tflite';
+import {
+  Camera,
+  useCameraDevices,
+  useFrameProcessor,
+} from 'react-native-vision-camera';
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
   const [position, setPosition] = useState<'back' | 'front'>('back');
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
+
+  const plugin = useTensorflowModel('https://github.com/mrousavy');
 
   useEffect(() => {
     Camera.requestCameraPermission().then(p =>
