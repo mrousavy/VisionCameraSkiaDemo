@@ -9,7 +9,8 @@ import {
 } from 'react-native-vision-camera';
 import {resize} from './resizePlugin';
 import {getBestFormat} from './formatFilter';
-import {PaintStyle, Skia} from '@shopify/react-native-skia';
+import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
+import {useSharedValue} from 'react-native-worklets-core';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -21,7 +22,7 @@ function App(): JSX.Element {
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
   const format = useMemo(
-    () => (device != null ? getBestFormat(device, 500, 720) : undefined),
+    () => (device != null ? getBestFormat(device, 300, 300) : undefined),
     [device],
   );
   console.log(format?.videoWidth, format?.videoHeight);
@@ -57,6 +58,8 @@ function App(): JSX.Element {
     );
   }
 
+  const font = useFont(require('./assets/FiraCode.ttf'), 10);
+
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
   paint.setStrokeWidth(5);
@@ -68,15 +71,11 @@ function App(): JSX.Element {
     frame => {
       'worklet';
 
-      console.log(frame.width, frame.height);
       if (plugin.model != null) {
         const start = performance.now();
         const smaller = resize(frame, inputWidth, inputHeight);
         const outputs = plugin.model.runSync([smaller]);
         const end = performance.now();
-        // console.log(
-        //   `Model returned ${outputs.length} outputs in ${end - start}ms!`,
-        // );
 
         const output = outputs[0];
         const frameWidth = frame.width;
@@ -89,6 +88,15 @@ function App(): JSX.Element {
         //   output[14 * 3] * frameHeight,
         //   paint,
         // );
+        if (font != null) {
+          frame.drawText(
+            `${(end - start).toFixed(0)}ms`,
+            frame.width * 0.3,
+            frame.height * 0.1,
+            paint,
+            font,
+          );
+        }
 
         for (let i = 0; i < 17; i++) {
           const y = output[i * 3];
@@ -112,7 +120,7 @@ function App(): JSX.Element {
         }
       }
     },
-    [plugin, paint, dotSize],
+    [plugin, paint, dotSize, font],
   );
 
   return (
