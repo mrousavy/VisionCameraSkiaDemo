@@ -378,6 +378,10 @@ PODS:
   - react-native-fast-tflite (0.2.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
+  - react-native-skia (0.1.202):
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-worklets-core (0.2.0):
     - React
     - React-callinvoker
@@ -497,6 +501,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
+    - react-native-skia
     - react-native-worklets-core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -549,6 +554,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-fast-tflite (from `../node_modules/react-native-fast-tflite`)
+  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-worklets-core (from `../node_modules/react-native-worklets-core`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -633,6 +639,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-fast-tflite:
     :path: "../node_modules/react-native-fast-tflite"
+  react-native-skia:
+    :path: "../node_modules/@shopify/react-native-skia"
   react-native-worklets-core:
     :path: "../node_modules/react-native-worklets-core"
   React-NativeModulesApple:
@@ -709,6 +717,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-fast-tflite: 171e696802a42a93c726fb85ff845429865bcb7a
+  react-native-skia: e385b516950c050926c1c8d5a2d5a9377842983f
   react-native-worklets-core: 7ad416a8965086b98b07964f7f6932560a54a14c
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
@@ -728,7 +737,7 @@ SPEC CHECKSUMS:
   React-utils: b79f2411931f9d3ea5781404dcbb2fa8a837e13a
   ReactCommon: 4b2bdcb50a3543e1c2b2849ad44533686610826d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: b94e4d7926bbfa8522f210f146cdada948764a39
+  VisionCamera: cb4f68f50e166a5890a4b2d62d7c7bb737ec6d73
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

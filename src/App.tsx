@@ -5,9 +5,11 @@ import {
   Camera,
   useCameraDevices,
   useFrameProcessor,
+  useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
 import {resize} from './resizePlugin';
 import {getBestFormat} from './formatFilter';
+import {Skia} from '@shopify/react-native-skia';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -19,7 +21,7 @@ function App(): JSX.Element {
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
   const format = useMemo(
-    () => (device != null ? getBestFormat(device, 720, 1080) : undefined),
+    () => (device != null ? getBestFormat(device, 360, 500) : undefined),
     [device],
   );
   console.log(format?.videoWidth, format?.videoHeight);
@@ -46,13 +48,22 @@ function App(): JSX.Element {
     );
   }, [plugin]);
 
-  const frameProcessor = useFrameProcessor(
+  const inputWidth = plugin.model?.inputs[0].shape[1] ?? 0;
+  const inputHeight = plugin.model?.inputs[0].shape[2] ?? 0;
+  console.log(plugin.model?.inputs[0]);
+
+  const paint = Skia.Paint();
+  paint.setColor(Skia.Color('red'));
+  paint.setStrokeWidth(5);
+
+  const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
 
+      console.log(frame.width, frame.height);
       if (plugin.model != null) {
         const start = performance.now();
-        const smaller = resize(frame, 192, 192);
+        const smaller = resize(frame, inputWidth, inputHeight);
         const outputs = plugin.model.runSync([smaller]);
         const end = performance.now();
         console.log(
@@ -60,36 +71,20 @@ function App(): JSX.Element {
         );
 
         const output = outputs[0];
-        // X coord
-        const x = output[0];
-        // = output[0] Y coord
-        const y = output[1];
-        // = output[0] 17 landmarks of pose
-        const nose = output[2];
-        const leftEye = output[3];
-        const rightEye = output[4];
-        const leftEar = output[5];
-        const rightEar = output[6];
-        const leftShoulder = output[7];
-        const rightShoulder = output[8];
-        const leftElbow = output[9];
-        const rightElbow = output[10];
-        const leftWrist = output[11];
-        const rightWrist = output[12];
-        const leftHip = output[13];
-        const rightHip = output[14];
-        const leftKnee = output[15];
-        const rightKnee = output[16];
-        const leftAnkle = output[17];
-        const rightAnkle = output[18];
-        // = output[0] confidences of each channel
-        const confidence1 = output[19];
-        const confidence2 = output[20];
-        const confidence3 = output[21];
 
-        console.log(
-          `Confidence: ${confidence1} | ${confidence2} | ${confidence3}`,
-        );
+        for (let i = 0; i < 17; i++) {
+          const x = output[i * 3];
+          const y = output[i * 3 + 1];
+          const confidence = output[i * 3 + 2];
+
+          if (confidence > 0.5) {
+            const targetX = x * frame.width;
+            const targetY = y * frame.height;
+
+            const rect = Skia.XYWHRect(targetX - 15, targetY - 15, 30, 30);
+            frame.drawRect(rect, paint);
+          }
+        }
       }
     },
     [plugin],

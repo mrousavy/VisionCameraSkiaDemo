@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@shopify/react-native-skia": "^0.1.202",
     "react": "18.2.0",
     "react-native": "0.72.4",
     "react-native-fast-tflite": "^0.2.0",
