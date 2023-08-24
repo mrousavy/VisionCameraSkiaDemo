@@ -136,9 +136,12 @@ function App(): JSX.Element {
         }
 
         if (emojiFont != null) {
-          const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
-          const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
-          frame.drawText('😄', noseX, noseY, paint, emojiFont);
+          const faceConfidence = output[2];
+          if (faceConfidence > 0.5) {
+            const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
+            const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
+            frame.drawText('😄', noseX, noseY, paint, emojiFont);
+          }
         }
       }
     },
