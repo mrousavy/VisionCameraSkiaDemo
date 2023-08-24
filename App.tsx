@@ -10,7 +10,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     Camera.requestCameraPermission().then(p =>
-      setHasPermission(p === 'authorized'),
+      setHasPermission(p === 'granted'),
     );
   }, []);
 
