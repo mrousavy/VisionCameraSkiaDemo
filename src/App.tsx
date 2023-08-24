@@ -14,6 +14,10 @@ function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
 }
 
+const LINE_WIDTH = 5;
+const EMOJI_SIZE = 50;
+const MIN_CONFIDENCE = 0.35;
+
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
   const [position, setPosition] = useState<'back' | 'front'>('front');
@@ -58,10 +62,8 @@ function App(): JSX.Element {
 
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
-  paint.setStrokeWidth(5);
+  paint.setStrokeWidth(LINE_WIDTH);
   paint.setColor(Skia.Color('white'));
-
-  const dotSize = 5;
 
   const lines = [
     // left shoulder -> elbow
@@ -91,7 +93,6 @@ function App(): JSX.Element {
     6, 12,
   ];
 
-  const EMOJI_SIZE = 50;
   const emojiFont = useFont(
     require('./assets/NotoEmoji-Medium.ttf'),
     EMOJI_SIZE,
@@ -122,22 +123,20 @@ function App(): JSX.Element {
           const to = lines[i + 1];
 
           const confidence = output[from * 3 + 2];
-          if (confidence < 0.5) {
-            continue;
+          if (confidence > MIN_CONFIDENCE) {
+            frame.drawLine(
+              output[from * 3 + 1] * frameWidth,
+              output[from * 3] * frameHeight,
+              output[to * 3 + 1] * frameWidth,
+              output[to * 3] * frameHeight,
+              paint,
+            );
           }
-
-          frame.drawLine(
-            output[from * 3 + 1] * frameWidth,
-            output[from * 3] * frameHeight,
-            output[to * 3 + 1] * frameWidth,
-            output[to * 3] * frameHeight,
-            paint,
-          );
         }
 
         if (emojiFont != null) {
           const faceConfidence = output[2];
-          if (faceConfidence > 0.5) {
+          if (faceConfidence > MIN_CONFIDENCE) {
             const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
             const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
             frame.drawText('😄', noseX, noseY, paint, emojiFont);
@@ -145,7 +144,7 @@ function App(): JSX.Element {
         }
       }
     },
-    [plugin, paint, dotSize, emojiFont],
+    [plugin, paint, emojiFont],
   );
 
   return (
