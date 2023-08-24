@@ -15,7 +15,7 @@ function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
-  const [position, setPosition] = useState<'back' | 'front'>('back');
+  const [position, setPosition] = useState<'back' | 'front'>('front');
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
   const format = useMemo(
@@ -57,6 +57,38 @@ function App(): JSX.Element {
         const end = performance.now();
         console.log(
           `Model returned ${outputs.length} outputs in ${end - start}ms!`,
+        );
+
+        const output = outputs[0];
+        // X coord
+        const x = output[0];
+        // = output[0] Y coord
+        const y = output[1];
+        // = output[0] 17 landmarks of pose
+        const nose = output[2];
+        const leftEye = output[3];
+        const rightEye = output[4];
+        const leftEar = output[5];
+        const rightEar = output[6];
+        const leftShoulder = output[7];
+        const rightShoulder = output[8];
+        const leftElbow = output[9];
+        const rightElbow = output[10];
+        const leftWrist = output[11];
+        const rightWrist = output[12];
+        const leftHip = output[13];
+        const rightHip = output[14];
+        const leftKnee = output[15];
+        const rightKnee = output[16];
+        const leftAnkle = output[17];
+        const rightAnkle = output[18];
+        // = output[0] confidences of each channel
+        const confidence1 = output[19];
+        const confidence2 = output[20];
+        const confidence3 = output[21];
+
+        console.log(
+          `Confidence: ${confidence1} | ${confidence2} | ${confidence3}`,
         );
       }
     },
