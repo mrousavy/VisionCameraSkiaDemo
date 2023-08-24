@@ -21,13 +21,13 @@ function App(): JSX.Element {
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
   const format = useMemo(
-    () => (device != null ? getBestFormat(device, 360, 500) : undefined),
+    () => (device != null ? getBestFormat(device, 500, 720) : undefined),
     [device],
   );
   console.log(format?.videoWidth, format?.videoHeight);
 
   const plugin = useTensorflowModel(
-    require('./assets/lite-model_movenet_singlepose_thunder_tflite_int8_4.tflite'),
+    require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
   );
 
   useEffect(() => {
@@ -48,9 +48,14 @@ function App(): JSX.Element {
     );
   }, [plugin]);
 
-  const inputWidth = plugin.model?.inputs[0].shape[1] ?? 0;
-  const inputHeight = plugin.model?.inputs[0].shape[2] ?? 0;
-  console.log(plugin.model?.inputs[0]);
+  const inputTensor = plugin.model?.inputs[0];
+  const inputWidth = inputTensor?.shape[1] ?? 0;
+  const inputHeight = inputTensor?.shape[2] ?? 0;
+  if (inputTensor != null) {
+    console.log(
+      `Input: ${inputTensor.dataType} ${inputWidth} x ${inputHeight}`,
+    );
+  }
 
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
@@ -69,14 +74,13 @@ function App(): JSX.Element {
         const smaller = resize(frame, inputWidth, inputHeight);
         const outputs = plugin.model.runSync([smaller]);
         const end = performance.now();
-        console.log(
-          `Model returned ${outputs.length} outputs in ${end - start}ms!`,
-        );
+        // console.log(
+        //   `Model returned ${outputs.length} outputs in ${end - start}ms!`,
+        // );
 
         const output = outputs[0];
         const frameWidth = frame.width;
         const frameHeight = frame.height;
-        console.log('YEEE', output.length);
 
         // frame.drawLine(
         //   output[12 * 3 + 1] * frameWidth,
@@ -91,7 +95,7 @@ function App(): JSX.Element {
           const x = output[i * 3 + 1];
           const confidence = output[i * 3 + 2];
 
-          console.log(`X: ${x} | Y: ${y} | CONF: ${confidence}`);
+          // console.log(`X: ${x} | Y: ${y} | CONF: ${confidence}`);
 
           if (confidence > 0.5) {
             const targetX = x * frameWidth;

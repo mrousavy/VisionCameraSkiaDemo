@@ -2,10 +2,10 @@ import {Frame} from 'react-native-vision-camera';
 
 // Cache array to prevent it from being constantly allocated
 const CACHE_ID = '__cachedArrayForResizer';
-function getArrayFromCache(size: number): Uint8Array {
+function getArrayFromCache(size: number): Int8Array {
   'worklet';
   if (global[CACHE_ID] == null || global[CACHE_ID].length != size) {
-    global[CACHE_ID] = new Uint8Array(size);
+    global[CACHE_ID] = new Int8Array(size);
   }
   return global[CACHE_ID];
 }
@@ -14,18 +14,14 @@ function getArrayFromCache(size: number): Uint8Array {
  * Resizes the given Frame to the given target width and height.
  * For 1920x1080 BGRA -> 192x192 RGB Frames, this takes roughly 5ms on an iPhone 11 Pro.
  */
-export function resize(
-  frame: Frame,
-  width: number,
-  height: number,
-): Uint8Array {
+export function resize(frame: Frame, width: number, height: number): Int8Array {
   'worklet';
 
   const inputBytesPerRow = frame.bytesPerRow;
   const inputWidth = frame.width;
   const inputHeight = frame.height;
   const inputPixelSize = Math.floor(inputBytesPerRow / inputWidth); // 4 for BGRA
-  const padding = inputBytesPerRow - inputWidth; // on some frames there's additional padding
+  const padding = inputBytesPerRow - inputWidth * inputPixelSize; // on some frames there's additional padding
 
   const targetWidth = width;
   const targetHeight = height;
