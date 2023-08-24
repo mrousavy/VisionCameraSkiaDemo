@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {StatusBar, StyleSheet, Text, View} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
 import {
@@ -9,7 +9,7 @@ import {
 } from 'react-native-vision-camera';
 import {resize} from './resizePlugin';
 import {getBestFormat} from './formatFilter';
-import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
+import {PaintStyle, Skia, useFont, useImage} from '@shopify/react-native-skia';
 import {useSharedValue} from 'react-native-worklets-core';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
@@ -58,69 +58,84 @@ function App(): JSX.Element {
     );
   }
 
-  const font = useFont(require('./assets/FiraCode.ttf'), 10);
-
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
   paint.setStrokeWidth(5);
-  paint.setColor(Skia.Color('red'));
+  paint.setColor(Skia.Color('white'));
 
   const dotSize = 5;
+
+  const lines = [
+    // left shoulder -> elbow
+    5, 7,
+    // right shoulder -> elbow
+    6, 8,
+    // left elbow -> wrist
+    7, 9,
+    // right elbow -> wrist
+    8, 10,
+    // left hip -> knee
+    11, 13,
+    // right hip -> knee
+    12, 14,
+    // left knee -> ankle
+    13, 15,
+    // right knee -> ankle
+    14, 16,
+
+    // left hip -> right hip
+    11, 12,
+    // left shoulder -> right shoulder
+    5, 6,
+    // left shoulder -> left hip
+    5, 11,
+    // right shoulder -> right hip
+    6, 12,
+  ];
+
+  const emojiFont = useFont(require('./assets/NotoEmoji-Medium.ttf'), 32, e =>
+    console.error(e),
+  );
+
+  const fillColor = Skia.Color('black');
+  const fillPaint = Skia.Paint();
+  fillPaint.setColor(fillColor);
 
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
 
       if (plugin.model != null) {
-        const start = performance.now();
         const smaller = resize(frame, inputWidth, inputHeight);
         const outputs = plugin.model.runSync([smaller]);
-        const end = performance.now();
 
         const output = outputs[0];
         const frameWidth = frame.width;
         const frameHeight = frame.height;
 
-        // frame.drawLine(
-        //   output[12 * 3 + 1] * frameWidth,
-        //   output[12 * 3] * frameHeight,
-        //   output[14 * 3 + 1] * frameWidth,
-        //   output[14 * 3] * frameHeight,
-        //   paint,
-        // );
-        if (font != null) {
-          frame.drawText(
-            `${(end - start).toFixed(0)}ms`,
-            frame.width * 0.3,
-            frame.height * 0.1,
+        const rect = Skia.XYWHRect(0, 0, frameWidth, frameHeight);
+        frame.drawRect(rect, fillPaint);
+
+        for (let i = 0; i < lines.length; i += 2) {
+          const from = lines[i];
+          const to = lines[i + 1];
+          frame.drawLine(
+            output[from * 3 + 1] * frameWidth,
+            output[from * 3] * frameHeight,
+            output[to * 3 + 1] * frameWidth,
+            output[to * 3] * frameHeight,
             paint,
-            font,
           );
         }
 
-        for (let i = 0; i < 17; i++) {
-          const y = output[i * 3];
-          const x = output[i * 3 + 1];
-          const confidence = output[i * 3 + 2];
-
-          // console.log(`X: ${x} | Y: ${y} | CONF: ${confidence}`);
-
-          if (confidence > 0.5) {
-            const targetX = x * frameWidth;
-            const targetY = y * frameHeight;
-
-            const rect = Skia.XYWHRect(
-              targetX - dotSize / 2,
-              targetY - dotSize / 2,
-              dotSize,
-              dotSize,
-            );
-            frame.drawRect(rect, paint);
-          }
+        if (emojiFont != null) {
+          const noseY = output[0] * frame.height;
+          const noseX = output[1] * frame.width - 16;
+          frame.drawText('😄', noseX, noseY, paint, emojiFont);
         }
       }
     },
-    [plugin, paint, dotSize, font],
+    [plugin, paint, dotSize, emojiFont],
   );
 
   return (
