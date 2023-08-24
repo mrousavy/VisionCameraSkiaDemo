@@ -14,6 +14,13 @@ function App(): JSX.Element {
     );
   }, []);
 
+  const frameProcessor = useFrameProcessor(frame => {
+    'worklet';
+    console.log(
+      `${frame.timestamp}: ${frame.width}x${frame.height} (${frame.pixelFormat})`,
+    );
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -23,6 +30,7 @@ function App(): JSX.Element {
           style={StyleSheet.absoluteFill}
           device={device}
           isActive={true}
+          frameProcessor={frameProcessor}
         />
       )}
     </View>
