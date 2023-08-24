@@ -9,7 +9,7 @@ import {
 } from 'react-native-vision-camera';
 import {resize} from './resizePlugin';
 import {getBestFormat} from './formatFilter';
-import {Skia} from '@shopify/react-native-skia';
+import {PaintStyle, Skia} from '@shopify/react-native-skia';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -27,7 +27,7 @@ function App(): JSX.Element {
   console.log(format?.videoWidth, format?.videoHeight);
 
   const plugin = useTensorflowModel(
-    require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
+    require('./assets/lite-model_movenet_singlepose_thunder_tflite_int8_4.tflite'),
   );
 
   useEffect(() => {
@@ -53,8 +53,11 @@ function App(): JSX.Element {
   console.log(plugin.model?.inputs[0]);
 
   const paint = Skia.Paint();
-  paint.setColor(Skia.Color('red'));
+  paint.setStyle(PaintStyle.Fill);
   paint.setStrokeWidth(5);
+  paint.setColor(Skia.Color('red'));
+
+  const dotSize = 5;
 
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
@@ -71,23 +74,41 @@ function App(): JSX.Element {
         );
 
         const output = outputs[0];
+        const frameWidth = frame.width;
+        const frameHeight = frame.height;
+        console.log('YEEE', output.length);
+
+        // frame.drawLine(
+        //   output[12 * 3 + 1] * frameWidth,
+        //   output[12 * 3] * frameHeight,
+        //   output[14 * 3 + 1] * frameWidth,
+        //   output[14 * 3] * frameHeight,
+        //   paint,
+        // );
 
         for (let i = 0; i < 17; i++) {
-          const x = output[i * 3];
-          const y = output[i * 3 + 1];
+          const y = output[i * 3];
+          const x = output[i * 3 + 1];
           const confidence = output[i * 3 + 2];
 
-          if (confidence > 0.5) {
-            const targetX = x * frame.width;
-            const targetY = y * frame.height;
+          console.log(`X: ${x} | Y: ${y} | CONF: ${confidence}`);
 
-            const rect = Skia.XYWHRect(targetX - 15, targetY - 15, 30, 30);
+          if (confidence > 0.5) {
+            const targetX = x * frameWidth;
+            const targetY = y * frameHeight;
+
+            const rect = Skia.XYWHRect(
+              targetX - dotSize / 2,
+              targetY - dotSize / 2,
+              dotSize,
+              dotSize,
+            );
             frame.drawRect(rect, paint);
           }
         }
       }
     },
-    [plugin],
+    [plugin, paint, dotSize],
   );
 
   return (
