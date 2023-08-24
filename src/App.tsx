@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
 import {
   Camera,
@@ -16,7 +16,9 @@ function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
 
 const LINE_WIDTH = 5;
 const EMOJI_SIZE = 50;
-const MIN_CONFIDENCE = 0.35;
+const MIN_CONFIDENCE = 0.45;
+
+const VIEW_WIDTH = Dimensions.get('screen').width;
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
@@ -24,7 +26,7 @@ function App(): JSX.Element {
   const devices = useCameraDevices('wide-angle-camera');
   const device = devices[position];
   const format = useMemo(
-    () => (device != null ? getBestFormat(device, 300, 300) : undefined),
+    () => (device != null ? getBestFormat(device, 720, 1000) : undefined),
     [device],
   );
   console.log(format?.videoWidth, format?.videoHeight);
@@ -60,9 +62,12 @@ function App(): JSX.Element {
     );
   }
 
+  // to get from px -> dp since we draw in the camera coordinate system
+  const SCALE = (format?.videoWidth ?? VIEW_WIDTH) / VIEW_WIDTH;
+
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
-  paint.setStrokeWidth(LINE_WIDTH);
+  paint.setStrokeWidth(LINE_WIDTH * SCALE);
   paint.setColor(Skia.Color('white'));
 
   const lines = [
@@ -95,7 +100,7 @@ function App(): JSX.Element {
 
   const emojiFont = useFont(
     require('./assets/NotoEmoji-Medium.ttf'),
-    EMOJI_SIZE,
+    EMOJI_SIZE * SCALE,
     e => console.error(e),
   );
 
