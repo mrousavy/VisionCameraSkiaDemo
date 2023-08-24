@@ -1,6 +1,8 @@
 # VisionCameraSkiaDemo
 
-Demo of VisionCamera + TFLite + Skia without any native code
+Demo of VisionCamera + TFLite + Skia without any native code 🤯🕺🏼
+
+See this blogpost: https://mrousavy.com/blog/VisionCamera-Pose-Detection-TFLite
 
 1. [react-native-vision-camera](https://github.com/mrousavy/react-native-vision-camera) is used to stream frames from a Camera.
    1. [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) is required by VisionCamera to use Frame Processors
