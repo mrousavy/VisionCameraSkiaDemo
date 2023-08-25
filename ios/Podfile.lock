@@ -716,7 +716,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-fast-tflite: 171e696802a42a93c726fb85ff845429865bcb7a
+  react-native-fast-tflite: 4c49d76306371896e94ed3ab72cd9d92a30e9951
   react-native-skia: e385b516950c050926c1c8d5a2d5a9377842983f
   react-native-worklets-core: 7ad416a8965086b98b07964f7f6932560a54a14c
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
@@ -741,6 +741,6 @@ SPEC CHECKSUMS:
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 79bea56dff66663747d3c06cbf4fd00c1c92cd68
+PODFILE CHECKSUM: 67835003154bdf50f9a79b1963815b3978493390
 
 COCOAPODS: 1.12.1

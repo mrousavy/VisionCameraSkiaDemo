@@ -33,6 +33,7 @@ function App(): JSX.Element {
 
   const plugin = useTensorflowModel(
     require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
+    'core-ml',
   );
 
   useEffect(() => {
