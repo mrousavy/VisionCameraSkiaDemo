@@ -152,8 +152,10 @@ function App(): JSX.Element {
     [plugin, paint, emojiFont],
   );
 
+  const flipCamera = () => setPosition(p => (p === 'back' ? 'front' : 'back'));
+
   return (
-    <View style={styles.container}>
+    <View onTouchEnd={flipCamera} style={styles.container}>
       <StatusBar barStyle="light-content" />
       {!hasPermission && <Text style={styles.text}>No Camera Permission.</Text>}
       {hasPermission && device != null && (
