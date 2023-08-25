@@ -1,6 +1,6 @@
 # VisionCameraSkiaDemo
 
-Demo of VisionCamera + TFLite + Skia without any native code 🤯🕺🏼
+Demo of VisionCamera + TFLite + Skia to detect your body and draw a stickman figure ontop of it in realtime - **without any native code** 🤯🕺🏼
 
 See this blogpost: https://mrousavy.com/blog/VisionCamera-Pose-Detection-TFLite
 
