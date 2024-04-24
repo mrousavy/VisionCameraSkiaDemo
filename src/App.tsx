@@ -1,13 +1,12 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dimensions, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
+import {useResizePlugin} from 'vision-camera-resize-plugin';
 import {
   Camera,
   useCameraDevices,
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
-import {resize} from './resizePlugin';
-import {getBestFormat} from './formatFilter';
 import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
@@ -22,14 +21,9 @@ const VIEW_WIDTH = Dimensions.get('screen').width;
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
-  const [position, setPosition] = useState<'back' | 'front'>('front');
-  const devices = useCameraDevices('wide-angle-camera');
-  const device = devices[position];
-  const format = useMemo(
-    () => (device != null ? getBestFormat(device, 720, 1000) : undefined),
-    [device],
-  );
-  console.log(format?.videoWidth, format?.videoHeight);
+  const devices = useCameraDevices();
+  const device = devices.find(d => d.position === 'front');
+  const {resize} = useResizePlugin();
 
   const plugin = useTensorflowModel(
     require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
@@ -64,7 +58,7 @@ function App(): JSX.Element {
   }
 
   // to get from px -> dp since we draw in the camera coordinate system
-  const SCALE = (format?.videoWidth ?? VIEW_WIDTH) / VIEW_WIDTH;
+  const SCALE = (1080 ?? VIEW_WIDTH) / VIEW_WIDTH;
 
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
@@ -114,7 +108,15 @@ function App(): JSX.Element {
       'worklet';
 
       if (plugin.model != null) {
-        const smaller = resize(frame, inputWidth, inputHeight);
+        const smaller = resize(frame, {
+          scale: {
+            width: inputWidth,
+            height: inputHeight,
+          },
+          pixelFormat: 'rgb',
+          dataType: 'uint8',
+          rotation: '0deg',
+        });
         const outputs = plugin.model.runSync([smaller]);
 
         const output = outputs[0];
@@ -131,10 +133,10 @@ function App(): JSX.Element {
           const confidence = output[from * 3 + 2];
           if (confidence > MIN_CONFIDENCE) {
             frame.drawLine(
-              output[from * 3 + 1] * frameWidth,
-              output[from * 3] * frameHeight,
-              output[to * 3 + 1] * frameWidth,
-              output[to * 3] * frameHeight,
+              Number(output[from * 3 + 1]) * Number(frameWidth),
+              Number(output[from * 3]) * Number(frameHeight),
+              Number(output[to * 3 + 1]) * Number(frameWidth),
+              Number(output[to * 3]) * Number(frameHeight),
               paint,
             );
           }
@@ -143,8 +145,8 @@ function App(): JSX.Element {
         if (emojiFont != null) {
           const faceConfidence = output[2];
           if (faceConfidence > MIN_CONFIDENCE) {
-            const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
-            const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
+            const noseY = Number(output[0]) * frame.height + EMOJI_SIZE * 0.3;
+            const noseX = Number(output[1]) * frame.width - EMOJI_SIZE / 2;
             frame.drawText('😄', noseX, noseY, paint, emojiFont);
           }
         }
@@ -153,17 +155,14 @@ function App(): JSX.Element {
     [plugin, paint, emojiFont],
   );
 
-  const flipCamera = () => setPosition(p => (p === 'back' ? 'front' : 'back'));
-
   return (
-    <View onTouchEnd={flipCamera} style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       {!hasPermission && <Text style={styles.text}>No Camera Permission.</Text>}
       {hasPermission && device != null && (
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
-          format={format}
           isActive={true}
           frameProcessor={frameProcessor}
           pixelFormat="rgb"
