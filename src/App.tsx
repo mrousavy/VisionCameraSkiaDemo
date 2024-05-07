@@ -21,7 +21,8 @@ const VIEW_WIDTH = Dimensions.get('screen').width;
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
-  const device = useCameraDevice('front');
+  const [position, setPosition] = useState<'back' | 'front'>('front');
+  const device = useCameraDevice(position);
   const {resize} = useResizePlugin();
 
   const plugin = useTensorflowModel(
@@ -154,8 +155,10 @@ function App(): JSX.Element {
     [plugin, paint, emojiFont],
   );
 
+  const flipCamera = () => setPosition(p => (p === 'back' ? 'front' : 'back'));
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onTouchEnd={flipCamera}>
       <StatusBar barStyle="light-content" />
       {!hasPermission && <Text style={styles.text}>No Camera Permission.</Text>}
       {hasPermission && device != null && (
