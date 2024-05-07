@@ -6020,10 +6020,10 @@ react-native-fast-tflite@^1.2.0:
   resolved "https://registry.yarnpkg.com/react-native-fast-tflite/-/react-native-fast-tflite-1.2.0.tgz#8813d268402675c58d050adaa407c241aa2b6d41"
   integrity sha512-1hpDXU+XDJ/fHtI7v0ThJj9/bn/utk7C7FLE2Fa60sJawHcsOAxdOlh92BJzhxpYHBMO9367Jlr5f2bKC1DZmA==
 
-react-native-reanimated@^3.8.1:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.8.1.tgz#45c13d4bedebef8df3d5a8756f25072de65960d7"
-  integrity sha512-EdM0vr3JEaNtqvstqESaPfOBy0gjYBkr1iEolWJ82Ax7io8y9OVUIphgsLKTB36CtR1XtmBw0RZVj7KArc7ZVA==
+react-native-reanimated@^3.11.0:
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.11.0.tgz#d4265d4e0232623f5958ed60e1686ca884fc3452"
+  integrity sha512-BNw/XDgUfs8UhfY1X6IniU8kWpnotWGyt8qmQviaHisTi5lvwnaOdXQKfN1KGONx6ekdFRHRP5EFwLi0UajwKA==
   dependencies:
     "@babel/plugin-transform-arrow-functions" "^7.0.0-0"
     "@babel/plugin-transform-nullish-coalescing-operator" "^7.0.0-0"
@@ -6034,15 +6034,15 @@ react-native-reanimated@^3.8.1:
     convert-source-map "^2.0.0"
     invariant "^2.2.4"
 
-react-native-vision-camera@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-4.0.1.tgz#045c8ff9c236d3bf7e1dba24172a4c11b19bbd37"
-  integrity sha512-TuXLw/ak+LPaJOCuUaYG1g2EmTAEEeIVAhSbCsqEHlklMjkO0oRBGcPC6HpKw3++jkcKRBVVyY48HbB002UZfg==
+react-native-vision-camera@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-4.0.3.tgz#185e278bf3654f11a2878a3e4deb3369935627f8"
+  integrity sha512-scDSSVtd5OVMJrwhio/TcBw+h33XssJM+ANv3sdw7pH8dNQPRsHO1J32f0F/AAhudfdwffv7kAHB0Efe4nUl7g==
 
-react-native-worklets-core@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.1.1.tgz#c0a454c3be6d1ceab09ff925424ab371f5b048d3"
-  integrity sha512-mcZl5dDRJo+VI23HS6fPExr8YOW2fpxk+EtY1FIt81SyKt5FBHl97sSmdEjAOLKOb9myW6IiG5DWL8WQJ0iCWg==
+react-native-worklets-core@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.3.0.tgz#218a4679ebc6d33dae37b70504a3b7ee5bacd0f1"
+  integrity sha512-rSutT5e2yD2+FilBeDum/BAenRSQCmYj5MtngfDhTkKpPtxJohKIx+b130OQAr8782Kcc4/sM2JZOGNhPAaRcQ==
   dependencies:
     string-hash-64 "^1.0.3"
 
@@ -6959,10 +6959,10 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-vision-camera-resize-plugin@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/vision-camera-resize-plugin/-/vision-camera-resize-plugin-2.1.1.tgz#e146963f6a0ce7688718031e384999f0f44f7d47"
-  integrity sha512-5Vpn2NyRPrj05n+bcZdBXFFhxdzZt247gDvSz/EA+swmFYZcq+WDuT5UOAeukWEIG2Uk3JLHq6RSVd97HK6vgA==
+vision-camera-resize-plugin@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/vision-camera-resize-plugin/-/vision-camera-resize-plugin-3.1.0.tgz#6e5b773396bab2c92ecec896c3ee7812540a6d24"
+  integrity sha512-KKW5c5GCP+SCr4r8O3cg14lqDe4OSWAmRoY1YICYuv01wRVlDTavEmkWfuqjtcSAgU8EAXL76gM9GVCyWme6KQ==
 
 vlq@^1.0.0:
   version "1.0.1"

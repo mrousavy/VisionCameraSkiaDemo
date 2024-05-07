@@ -4,7 +4,7 @@ import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
 import {useResizePlugin} from 'vision-camera-resize-plugin';
 import {
   Camera,
-  useCameraDevices,
+  useCameraDevice,
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
 import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
@@ -21,8 +21,7 @@ const VIEW_WIDTH = Dimensions.get('screen').width;
 
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
-  const devices = useCameraDevices();
-  const device = devices.find(d => d.position === 'front');
+  const device = useCameraDevice('front');
   const {resize} = useResizePlugin();
 
   const plugin = useTensorflowModel(
