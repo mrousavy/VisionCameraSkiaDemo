@@ -119,6 +119,8 @@ function App(): JSX.Element {
   const fillPaint = Skia.Paint();
   fillPaint.setColor(fillColor);
 
+  const rotation = Platform.OS === 'ios' ? '0deg' : '270deg'; // hack to get android oriented properly
+
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
@@ -131,7 +133,7 @@ function App(): JSX.Element {
           },
           pixelFormat: 'rgb',
           dataType: 'uint8',
-          rotation: '0deg',
+          rotation: rotation,
         });
         const outputs = plugin.model.runSync([smaller]);
 
@@ -183,6 +185,7 @@ function App(): JSX.Element {
           device={device}
           isActive={true}
           frameProcessor={frameProcessor}
+          format={format}
           pixelFormat={pixelFormat}
         />
       )}
