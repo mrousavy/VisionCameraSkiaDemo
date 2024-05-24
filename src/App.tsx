@@ -1,5 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Dimensions, StatusBar, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState, useMemo} from 'react';
+import {
+  Dimensions,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
 import {useResizePlugin} from 'vision-camera-resize-plugin';
 import {
@@ -8,6 +15,7 @@ import {
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
 import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
+import {getBestFormat} from './formatFilter';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -25,10 +33,18 @@ function App(): JSX.Element {
   const device = useCameraDevice(position);
   const {resize} = useResizePlugin();
 
+  const delegate = Platform.OS === 'ios' ? 'core-ml' : undefined;
   const plugin = useTensorflowModel(
     require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
-    'core-ml',
+    delegate,
   );
+  const format = useMemo(
+    () => (device != null ? getBestFormat(device, 720, 1000) : undefined),
+    [device],
+  );
+  console.log(format?.videoWidth, format?.videoHeight);
+
+  const pixelFormat = Platform.OS === 'ios' ? 'rgb' : 'yuv';
 
   useEffect(() => {
     Camera.requestCameraPermission().then(p =>
@@ -58,7 +74,7 @@ function App(): JSX.Element {
   }
 
   // to get from px -> dp since we draw in the camera coordinate system
-  const SCALE = (1080 ?? VIEW_WIDTH) / VIEW_WIDTH;
+  const SCALE = (format?.videoWidth ?? VIEW_WIDTH) / VIEW_WIDTH;
 
   const paint = Skia.Paint();
   paint.setStyle(PaintStyle.Fill);
@@ -167,7 +183,7 @@ function App(): JSX.Element {
           device={device}
           isActive={true}
           frameProcessor={frameProcessor}
-          pixelFormat="rgb"
+          pixelFormat={pixelFormat}
         />
       )}
     </View>
