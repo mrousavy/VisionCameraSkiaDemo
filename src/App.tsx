@@ -1,14 +1,21 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {Dimensions, StatusBar, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState, useMemo} from 'react';
+import {
+  Dimensions,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+} from 'react-native';
 import {TensorflowModel, useTensorflowModel} from 'react-native-fast-tflite';
+import {useResizePlugin} from 'vision-camera-resize-plugin';
 import {
   Camera,
-  useCameraDevices,
+  useCameraDevice,
   useSkiaFrameProcessor,
 } from 'react-native-vision-camera';
-import {resize} from './resizePlugin';
-import {getBestFormat} from './formatFilter';
 import {PaintStyle, Skia, useFont} from '@shopify/react-native-skia';
+import {getBestFormat} from './formatFilter';
 
 function tensorToString(tensor: TensorflowModel['inputs'][number]): string {
   return `${tensor.dataType} [${tensor.shape}]`;
@@ -23,18 +30,21 @@ const VIEW_WIDTH = Dimensions.get('screen').width;
 function App(): JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
   const [position, setPosition] = useState<'back' | 'front'>('front');
-  const devices = useCameraDevices('wide-angle-camera');
-  const device = devices[position];
+  const device = useCameraDevice(position);
+  const {resize} = useResizePlugin();
+
+  const delegate = Platform.OS === 'ios' ? 'core-ml' : undefined;
+  const plugin = useTensorflowModel(
+    require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
+    delegate,
+  );
   const format = useMemo(
     () => (device != null ? getBestFormat(device, 720, 1000) : undefined),
     [device],
   );
   console.log(format?.videoWidth, format?.videoHeight);
 
-  const plugin = useTensorflowModel(
-    require('./assets/lite-model_movenet_singlepose_lightning_tflite_int8_4.tflite'),
-    'core-ml',
-  );
+  const pixelFormat = Platform.OS === 'ios' ? 'rgb' : 'yuv';
 
   useEffect(() => {
     Camera.requestCameraPermission().then(p =>
@@ -109,12 +119,22 @@ function App(): JSX.Element {
   const fillPaint = Skia.Paint();
   fillPaint.setColor(fillColor);
 
+  const rotation = Platform.OS === 'ios' ? '0deg' : '270deg'; // hack to get android oriented properly
+
   const frameProcessor = useSkiaFrameProcessor(
     frame => {
       'worklet';
 
       if (plugin.model != null) {
-        const smaller = resize(frame, inputWidth, inputHeight);
+        const smaller = resize(frame, {
+          scale: {
+            width: inputWidth,
+            height: inputHeight,
+          },
+          pixelFormat: 'rgb',
+          dataType: 'uint8',
+          rotation: rotation,
+        });
         const outputs = plugin.model.runSync([smaller]);
 
         const output = outputs[0];
@@ -131,10 +151,10 @@ function App(): JSX.Element {
           const confidence = output[from * 3 + 2];
           if (confidence > MIN_CONFIDENCE) {
             frame.drawLine(
-              output[from * 3 + 1] * frameWidth,
-              output[from * 3] * frameHeight,
-              output[to * 3 + 1] * frameWidth,
-              output[to * 3] * frameHeight,
+              Number(output[from * 3 + 1]) * Number(frameWidth),
+              Number(output[from * 3]) * Number(frameHeight),
+              Number(output[to * 3 + 1]) * Number(frameWidth),
+              Number(output[to * 3]) * Number(frameHeight),
               paint,
             );
           }
@@ -143,8 +163,8 @@ function App(): JSX.Element {
         if (emojiFont != null) {
           const faceConfidence = output[2];
           if (faceConfidence > MIN_CONFIDENCE) {
-            const noseY = output[0] * frame.height + EMOJI_SIZE * 0.3;
-            const noseX = output[1] * frame.width - EMOJI_SIZE / 2;
+            const noseY = Number(output[0]) * frame.height + EMOJI_SIZE * 0.3;
+            const noseX = Number(output[1]) * frame.width - EMOJI_SIZE / 2;
             frame.drawText('😄', noseX, noseY, paint, emojiFont);
           }
         }
@@ -156,17 +176,17 @@ function App(): JSX.Element {
   const flipCamera = () => setPosition(p => (p === 'back' ? 'front' : 'back'));
 
   return (
-    <View onTouchEnd={flipCamera} style={styles.container}>
+    <View style={styles.container} onTouchEnd={flipCamera}>
       <StatusBar barStyle="light-content" />
       {!hasPermission && <Text style={styles.text}>No Camera Permission.</Text>}
       {hasPermission && device != null && (
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
-          format={format}
           isActive={true}
           frameProcessor={frameProcessor}
-          pixelFormat="rgb"
+          format={format}
+          pixelFormat={pixelFormat}
         />
       )}
     </View>
